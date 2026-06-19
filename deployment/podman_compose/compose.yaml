@@ -1,0 +1,155 @@
+name: onyx
+
+services:
+  api_server:
+#    image: docker.io/onyxdotapp/onyx-backend:latest
+    image: registry.aboc.sh/onyx-backend:custom-1.1
+    command: >
+      /bin/sh -c "alembic upgrade head &&
+      echo \"Starting Onyx Api Server\" &&
+      uvicorn onyx.main:app --host 0.0.0.0 --port 8080"
+    # Check env.template and copy to .env for env vars
+    env_file:
+      - path: .env
+        required: false
+    depends_on:
+      relational_db:
+        condition: service_started
+    restart: unless-stopped
+    # DEV: To expose ports, either:
+    # 1. Use docker-compose.dev.yml: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --wait
+    # 2. Uncomment the ports below
+    ports:
+       - "8067:8080"
+    environment:
+      # Auth Settings
+      - AUTH_TYPE=${AUTH_TYPE:-basic}
+      - FILE_STORE_BACKEND=${FILE_STORE_BACKEND:-s3}
+      - POSTGRES_HOST=host.containers.internal
+      - POSTGRES_PORT=5467
+      - POSTGRES_PASSWORD=louvre
+      - OPENSEARCH_HOST=${OPENSEARCH_HOST:-opensearch}
+      - OPENSEARCH_ADMIN_PASSWORD=${OPENSEARCH_ADMIN_PASSWORD:-StrongPassword123!}
+      - REDIS_HOST=${REDIS_HOST:-cache}
+      - MODEL_SERVER_HOST=${MODEL_SERVER_HOST:-inference_model_server}
+      - CODE_INTERPRETER_BASE_URL=${CODE_INTERPRETER_BASE_URL:-http://code-interpreter:8000}
+      - S3_ENDPOINT_URL=${S3_ENDPOINT_URL:-http://minio:9000}
+      - S3_AWS_ACCESS_KEY_ID=${S3_AWS_ACCESS_KEY_ID:-minioadmin}
+      - S3_AWS_SECRET_ACCESS_KEY=${S3_AWS_SECRET_ACCESS_KEY:-minioadmin}
+      # Onyx Craft configuration (disabled by default, set ENABLE_CRAFT=true in .env to enable)
+      # Use --include-craft with install script, or manually set in .env file
+      - ENABLE_CRAFT=${ENABLE_CRAFT:-false}
+    # PRODUCTION: Uncomment the line below to use if IAM_AUTH is true and you are using iam auth for postgres
+    # volumes:
+    #   - ./bundle.pem:/app/bundle.pem:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "6"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')",
+        ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      # Generous start_period so that `docker compose up --wait` does not flag
+      # the container unhealthy while alembic migrations run on a fresh DB.
+      # Healthy is reported as soon as /health responds, so this does not slow
+      # down fast boots.
+      start_period: 600s
+    # Optional, only for debugging purposes
+    volumes:
+      - api_server_logs:/var/log/onyx
+      # Shared volume for persistent document storage (Craft file-system mode)
+      - file-system:/app/file-system
+  web_server:
+    image: registry.aboc.sh/onyx-web-server:custom-1.1
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "3099:3000"
+    depends_on:
+      - api_server
+    restart: unless-stopped
+    environment:
+      - INTERNAL_URL=http://host.containers.internal:8067
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "require('http').get('http://127.0.0.1:3000/', (r) => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  relational_db:
+    image: docker.io/library/postgres:15.2-alpine
+    shm_size: 1g
+    command: -c 'max_connections=250'
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    # PRODUCTION: Override the defaults by passing in the environment variables
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=louvre
+    ports:
+      - "5467:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./db_volume:/var/lib/postgresql/data
+
+  code-interpreter:
+    image: registry.aboc.sh/code-interpreter:podman-1
+    command: ["bash", "./entrypoint.sh", "code-interpreter-api"]
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "8867:8000"
+    # Below is needed for the `docker-out-of-docker` execution mode
+    # For Linux rootless Docker, set DOCKER_SOCK_PATH=${XDG_RUNTIME_DIR}/docker.sock
+    user: root
+#    volumes:
+#       - /var/run/podman.sock:/var/run/docker.sock
+    volumes:
+      - /run/podman/podman.sock:/var/run/docker.sock
+    # uncomment below + comment out the above to use the `docker-in-docker` execution mode
+    #privileged: true
+
+volumes:
+  # Necessary for persisting data for use
+  db_volume_n:
+  minio_data:
+  # Caches to prevent re-downloading models, not strictly necessary
+  model_cache_huggingface:
+  indexing_huggingface_model_cache:
+  # Logs preserved across container restarts
+  api_server_logs:
+  background_logs:
+  # mcp_server_logs:
+  inference_model_server_logs:
+  indexing_model_server_logs:
+  # Shared volume for persistent document storage (Craft file-system mode)
+  file-system:
+  # Persistent data for OpenSearch.
+  opensearch-data:
