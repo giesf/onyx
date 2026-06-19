@@ -149,7 +149,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
   const settings = useSettings();
   const { appName } = settings;
 
-  const appNameRef = useRef<string>("Onyx");
+  const appNameRef = useRef<string>("Platte");
   useEffect(() => {
     appNameRef.current = appName;
     document.title = currentChatSession?.name
@@ -1025,7 +1025,7 @@ export default function AppPage({ firstMessage }: ChatPageProps) {
                           (showOnboarding &&
                             !isLoadingOnboarding &&
                             onboardingState.currentStep !==
-                              OnboardingStep.Complete)
+                            OnboardingStep.Complete)
                         }
                         awaitingPreferredSelection={awaitingPreferredSelection}
                       />
