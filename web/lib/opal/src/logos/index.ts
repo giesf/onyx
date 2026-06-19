@@ -85,3 +85,4 @@ export { default as SvgXai } from "@opal/logos/xai";
 export { default as SvgXenforo } from "@opal/logos/xenforo";
 export { default as SvgZendesk } from "@opal/logos/zendesk";
 export { default as SvgZulip } from "@opal/logos/zulip";
+export { default as PlatteLogo } from "@opal/logos/platte";
