@@ -123,6 +123,9 @@ def infer_vision_support(model_id: str) -> bool:
     if any(vision_model in model_id_lower for vision_model in BEDROCK_VISION_MODELS):
         return True
 
+    if any(vision_model in model_id_lower for vision_model in SCALEWAY_VISION_MODELS):
+        return True
+
     normalized_model_id = model_id_lower.replace(".", "/")
     return any(
         vision_model in normalized_model_id
@@ -323,6 +326,11 @@ def is_reasoning_model(model_id: str, display_name: str) -> bool:
     Used for OpenRouter and other dynamic providers where we need to infer
     reasoning capability from model identifiers.
     """
+    
+    model_id_lower = model_id.lower()
+    if any(reasoning_model in model_id_lower for reasoning_model in SCALEWAY_REASONING_MODELS):
+        return True
+
     combined = f"{model_id} {display_name}".lower()
     return any(pattern in combined for pattern in REASONING_MODEL_PATTERNS)
 
