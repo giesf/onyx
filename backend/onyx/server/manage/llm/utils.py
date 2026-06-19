@@ -70,6 +70,26 @@ BIFROST_VISION_MODEL_FAMILIES = frozenset(
     }
 )
 
+# Known Vision Models for Scaleway
+SCALEWAY_VISION_MODELS = [
+    "gemma-4-31b-it",
+    "gemma-3-27b-it",
+    "gemma-4-26b-a4b-it",
+    "mistral-large-3-675b-instruct-2512",
+    "mistral-medium-3.5-128b",
+    "mistral-small-3.2-24b-instruct-2506",
+    "mistral-small-3.1-24b-instruct-2503",
+    "qwen3.6-35b-a3b",
+    "qwen3.5-397b-a17b",
+    "qwen3.5-35b-a3b",
+    "qwen3.5-122b-a10b",
+    "pixtral-12b-2409",
+    "holo2-30b-a3b",
+    "molmo-72b-0924"
+]
+
+
+
 
 def is_valid_bedrock_model(
     model_id: str,
@@ -281,6 +301,20 @@ REASONING_MODEL_PATTERNS = frozenset(
         "qwq",
     }
 )
+
+# Reasoning models for Scaleway
+SCALEWAY_REASONING_MODELS =  [
+    "gemma-4-31b-it",
+    "gemma-4-26b-a4b-it",
+    "mistral-large-3-675b-instruct-2512",
+    "mistral-medium-3.5-128b",
+    "qwen3.6-35b-a3b",
+    "qwen3.5-397b-a17b",
+    "qwen3-235b-a22b-thinking-2507",
+    "deepseek-r1-distill-llama-70b",
+    "deepseek-r1-distill-llama-8b",
+    "magistral-small-2506"
+]
 
 
 def is_reasoning_model(model_id: str, display_name: str) -> bool:
