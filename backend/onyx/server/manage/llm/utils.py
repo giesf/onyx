@@ -88,7 +88,13 @@ SCALEWAY_VISION_MODELS = [
     "molmo-72b-0924"
 ]
 
-
+TENSORX_VISION_MODELS = [
+    "minimax-m3",
+    "z-ai/glm-5v-turbo",
+    "moonshotai/kimi-k2.6",
+    "deepseek/deepseek-v4-pro",
+    "deepseek/deepseek-v4-flash"
+]
 
 
 def is_valid_bedrock_model(
@@ -125,6 +131,10 @@ def infer_vision_support(model_id: str) -> bool:
 
     if any(vision_model in model_id_lower for vision_model in SCALEWAY_VISION_MODELS):
         return True
+
+    if any(vision_model in model_id_lower for vision_model in TENSORX_VISION_MODELS):
+        return True
+
 
     normalized_model_id = model_id_lower.replace(".", "/")
     return any(
@@ -319,6 +329,14 @@ SCALEWAY_REASONING_MODELS =  [
     "magistral-small-2506"
 ]
 
+TENSORX_REASONING_MODELS = [
+    "z-ai/glm-5.2",
+    "minimax-m3",
+    "z-ai/glm-5v-turbo",
+    "moonshotai/kimi-k2.6",
+    "deepseek/deepseek-v4-pro",
+    "deepseek/deepseek-v4-flash"
+]
 
 def is_reasoning_model(model_id: str, display_name: str) -> bool:
     """Check if a model is a reasoning/thinking model based on its ID or name.
@@ -329,6 +347,9 @@ def is_reasoning_model(model_id: str, display_name: str) -> bool:
     
     model_id_lower = model_id.lower()
     if any(reasoning_model in model_id_lower for reasoning_model in SCALEWAY_REASONING_MODELS):
+        return True
+
+    if any(reasoning_model in model_id_lower for reasoning_model in TENSORX_REASONING_MODELS):
         return True
 
     combined = f"{model_id} {display_name}".lower()
