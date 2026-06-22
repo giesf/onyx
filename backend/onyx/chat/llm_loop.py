@@ -21,6 +21,8 @@ from onyx.chat.models import ExtractedContextFiles
 from onyx.chat.models import FileToolMetadata
 from onyx.chat.models import LlmStepResult
 from onyx.chat.models import ToolCallSimple
+from onyx.llm.models import ReasoningEffort
+
 from onyx.chat.prompt_utils import build_reminder_message
 from onyx.chat.prompt_utils import build_system_prompt
 from onyx.chat.prompt_utils import get_default_base_system_prompt
@@ -621,6 +623,7 @@ def run_llm_loop(
     include_citations: bool = True,
     all_injected_file_metadata: dict[str, FileToolMetadata] | None = None,
     inject_memories_in_prompt: bool = True,
+    reasoning_effort: ReasoningEffort = ReasoningEffort.AUTO
 ) -> None:
     with trace(
         "run_llm_loop",
@@ -847,6 +850,7 @@ def run_llm_loop(
                 # The rich docs representation is passed in so that when yielding the answer, it can also
                 # immediately yield the full set of found documents. This gives us the option to show the
                 # final set of documents immediately if desired.
+                reasoning_effort=reasoning_effort,
                 final_documents=gathered_documents,
                 user_identity=user_identity,
                 pre_answer_processing_time=pre_answer_processing_time,

@@ -173,6 +173,7 @@ export interface SendMessageRequest {
   parent_message_id?: number | null;
   origin?: string;
   include_citations?: boolean;
+  reasoning_effort?: "off" | "low" | "medium" | "high" | "auto"
 }
 
 export interface CreateSessionRequest {

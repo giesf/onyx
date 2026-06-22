@@ -140,6 +140,7 @@ export interface SendMessageParams {
   // Additional context injected into the LLM call but not stored/shown in chat.
   // Used e.g. by Chrome extension "Read this tab" feature.
   additionalContext?: string;
+  reasoningEffort?: string
 }
 
 export async function* sendMessage({
@@ -158,6 +159,7 @@ export async function* sendMessage({
   llmOverrides,
   origin,
   additionalContext,
+  reasoningEffort
 }: SendMessageParams): AsyncGenerator<PacketType, void, unknown> {
   // Build payload for new send-chat-message API
   const payload = {
@@ -172,11 +174,12 @@ export async function* sendMessage({
     llm_override:
       temperature || modelVersion
         ? {
-            temperature,
-            model_provider: modelProvider,
-            model_version: modelVersion,
-          }
+          temperature,
+          model_provider: modelProvider,
+          model_version: modelVersion,
+        }
         : null,
+    reasoning_effort: reasoningEffort,
     // Multi-model: list of LLM overrides for parallel generation
     llm_overrides: llmOverrides ?? null,
     // Default to "unknown" for consistency with backend; callers should set explicitly
@@ -407,13 +410,13 @@ export function processRawChatHistory(
       // this is identical to what is computed at streaming time
       ...(messageInfo.message_type === "assistant"
         ? {
-            retrievalType: retrievalType,
-            researchType: messageInfo.research_type as ResearchType | undefined,
-            query: messageInfo.rephrased_query,
-            documents: messageInfo?.context_docs || [],
-            citations: messageInfo?.citations || {},
-            processingDurationSeconds: messageInfo.processing_duration_seconds,
-          }
+          retrievalType: retrievalType,
+          researchType: messageInfo.research_type as ResearchType | undefined,
+          query: messageInfo.rephrased_query,
+          documents: messageInfo?.context_docs || [],
+          citations: messageInfo?.citations || {},
+          processingDurationSeconds: messageInfo.processing_duration_seconds,
+        }
         : {}),
       toolCall: messageInfo.tool_call,
       parentNodeId: messageInfo.parent_message,
@@ -481,8 +484,7 @@ export function buildChatUrl(
   const finalSearchParams: string[] = [];
   if (chatSessionId) {
     finalSearchParams.push(
-      `${
-        search ? SEARCH_PARAM_NAMES.SEARCH_ID : SEARCH_PARAM_NAMES.CHAT_ID
+      `${search ? SEARCH_PARAM_NAMES.SEARCH_ID : SEARCH_PARAM_NAMES.CHAT_ID
       }=${chatSessionId}`
     );
   }

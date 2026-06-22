@@ -18,7 +18,7 @@ from onyx.db.models import ChatSession
 from onyx.file_store.models import FileDescriptor
 from onyx.llm.override_models import LLMOverride
 from onyx.server.query_and_chat.streaming_models import Packet
-
+from onyx.llm.models import ReasoningEffort
 AUTO_PLACE_AFTER_LATEST_MESSAGE = -1
 
 
@@ -114,6 +114,8 @@ class SendMessageRequest(BaseModel):
     internal_search_filters: BaseFilters | None = None
 
     deep_research: bool = False
+
+    reasoning_effort: ReasoningEffort = ReasoningEffort.AUTO
 
     # Headers to forward to MCP tool calls (e.g., user JWT token, user ID)
     # Example: {"Authorization": "Bearer <user_jwt>", "X-User-ID": "user123"}

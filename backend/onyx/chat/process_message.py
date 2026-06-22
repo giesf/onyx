@@ -1267,6 +1267,7 @@ def _run_models(
                 run_llm_loop(
                     emitter=model_emitter,
                     state_container=sc,
+                    reasoning_effort=setup.new_msg_req.reasoning_effort,
                     simple_chat_history=list(setup.simple_chat_history),
                     tools=model_tools,
                     custom_agent_prompt=setup.custom_agent_prompt,

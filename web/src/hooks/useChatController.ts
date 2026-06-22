@@ -560,7 +560,7 @@ export default function useChatController({
       }
       const messageToResendParent =
         messageToResend?.parentNodeId !== null &&
-        messageToResend?.parentNodeId !== undefined
+          messageToResend?.parentNodeId !== undefined
           ? currentMessageTreeLocal.get(messageToResend.parentNodeId)
           : null;
       const messageToResendIndex = messageToResend
@@ -903,6 +903,7 @@ export default function useChatController({
         updateCurrentMessageFIFO(stack, {
           signal: controller.signal,
           message: currMessage,
+          reasoningEffort: window.localStorage.getItem("reasoning_effort") ?? "auto",
           fileDescriptors: effectiveFileDescriptors,
           parentMessageId: (() => {
             const parentId =
@@ -926,26 +927,26 @@ export default function useChatController({
           modelVersion: isMultiModel
             ? undefined
             : modelOverride?.modelName ||
-              llmManager.currentLlm.modelName ||
-              searchParams?.get(SEARCH_PARAM_NAMES.MODEL_VERSION) ||
-              undefined,
+            llmManager.currentLlm.modelName ||
+            searchParams?.get(SEARCH_PARAM_NAMES.MODEL_VERSION) ||
+            undefined,
           temperature: llmManager.temperature || undefined,
           deepResearch,
           enabledToolIds:
             disabledToolIds && liveAgent
               ? liveAgent.tools
-                  .filter((tool) => !disabledToolIds?.includes(tool.id))
-                  .map((tool) => tool.id)
+                .filter((tool) => !disabledToolIds?.includes(tool.id))
+                .map((tool) => tool.id)
               : undefined,
           forcedToolId: effectiveForcedToolId,
           origin: messageOrigin,
           additionalContext,
           llmOverrides: isMultiModel
             ? selectedModels!.map((m) => ({
-                model_provider: m.name,
-                model_version: m.modelName,
-                display_name: m.displayName,
-              }))
+              model_provider: m.name,
+              model_version: m.modelName,
+              display_name: m.displayName,
+            }))
             : undefined,
         });
 
@@ -1253,32 +1254,32 @@ export default function useChatController({
         // In single-model mode, mark the one agent node.
         const errorAssistantNodes: Message[] = isMultiModel
           ? buildNonErroredNodes({
+            message: errorMsg,
+            type: "error" as const,
+            packets: [],
+            packetCount: 0,
+            stackTrace,
+            errorCode,
+            isRetryable,
+            errorDetails,
+            is_generating: false,
+          })
+          : [
+            {
+              nodeId: initialAgentNode.nodeId,
               message: errorMsg,
               type: "error" as const,
+              files: aiMessageImages || [],
+              toolCall: null,
+              parentNodeId: initialUserNode.nodeId,
               packets: [],
               packetCount: 0,
-              stackTrace,
-              errorCode,
-              isRetryable,
-              errorDetails,
-              is_generating: false,
-            })
-          : [
-              {
-                nodeId: initialAgentNode.nodeId,
-                message: errorMsg,
-                type: "error" as const,
-                files: aiMessageImages || [],
-                toolCall: null,
-                parentNodeId: initialUserNode.nodeId,
-                packets: [],
-                packetCount: 0,
-                stackTrace: stackTrace,
-                errorCode: errorCode,
-                isRetryable: isRetryable,
-                errorDetails: errorDetails,
-              },
-            ];
+              stackTrace: stackTrace,
+              errorCode: errorCode,
+              isRetryable: isRetryable,
+              errorDetails: errorDetails,
+            },
+          ];
 
         currentMessageTreeLocal = upsertToCompleteMessageTree({
           messages: [userErrorNode, ...errorAssistantNodes],

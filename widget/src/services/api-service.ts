@@ -16,7 +16,7 @@ export class ApiService {
   constructor(
     private backendUrl: string,
     private apiKey: string
-  ) {}
+  ) { }
 
   /**
    * Create a new chat session
@@ -63,12 +63,14 @@ export class ApiService {
     parentMessageId?: number | null;
     signal?: AbortSignal;
     includeCitations?: boolean;
+    reasoningEffort?: "off" | "low" | "medium" | "high" | "auto"
   }): AsyncGenerator<Packet, void, unknown> {
     const request: SendMessageRequest = {
       message: params.message,
       chat_session_id: params.chatSessionId,
       parent_message_id: params.parentMessageId ?? null,
       origin: "widget",
+      reasoning_effort: params.reasoningEffort ?? "auto",
       include_citations: params.includeCitations ?? false,
     };
 

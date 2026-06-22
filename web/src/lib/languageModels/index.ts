@@ -208,6 +208,8 @@ const MODEL_ICON_MAP: Record<string, IconFunctionComponent> = {
   qwen: SvgQwen,
   qwq: SvgQwen,
   zai: ZAIIcon,
+  "z-ai": ZAIIcon,
+
   bedrock_converse: SvgAws,
 };
 
