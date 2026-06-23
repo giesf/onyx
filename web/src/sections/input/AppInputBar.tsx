@@ -49,6 +49,7 @@ import {
   SvgStop,
   SvgX,
   SvgSimpleLoader,
+  SvgCpu,
 } from "@opal/icons";
 import { Button, SelectButton } from "@opal/components";
 import { Popover } from "@opal/components";
@@ -123,6 +124,17 @@ const AppInputBar = React.memo(
     currentTabUrl,
     onToggleTabReading,
   }: AppInputBarProps) => {
+
+    const [extendedThinkingEnabled, setExtendedThinkingEnabled] = useState(localStorage.getItem("reasoning_effort") == "high");
+
+    const toggleExtendedThinking = useCallback(() => {
+
+
+      const isHigh = localStorage.getItem("reasoning_effort") == "high"
+      localStorage.setItem("reasoning_effort", isHigh ? "low" : "high")
+
+      setExtendedThinkingEnabled(isHigh ? false : true)
+    }, [extendedThinkingEnabled, setExtendedThinkingEnabled])
     const [isRecording, setIsRecording] = useState(false);
     const [recordingCycleCount, setRecordingCycleCount] = useState(0);
     const [isMuted, setIsMuted] = useState(false);
@@ -617,12 +629,12 @@ const AppInputBar = React.memo(
                 {tabReadingEnabled
                   ? currentTabUrl
                     ? (() => {
-                        try {
-                          return new URL(currentTabUrl).hostname;
-                        } catch {
-                          return currentTabUrl;
-                        }
-                      })()
+                      try {
+                        return new URL(currentTabUrl).hostname;
+                      } catch {
+                        return currentTabUrl;
+                      }
+                    })()
                     : "Reading tab..."
                   : "Read this tab"}
               </SelectButton>
@@ -645,7 +657,19 @@ const AppInputBar = React.memo(
                 </SelectButton>
               )
             )}
-
+            <SelectButton
+              disabled={false}
+              variant="select-light"
+              icon={SvgCpu}
+              onClick={toggleExtendedThinking}
+              state={extendedThinkingEnabled ? "selected" : "empty"}
+              foldable={!extendedThinkingEnabled}
+              tooltip={
+                "Toggle Extended Thinking Mode"
+              }
+            >
+              Extended Thinking
+            </SelectButton>
             {selectedAgent &&
               forcedToolIds.length > 0 &&
               forcedToolIds.map((toolId) => {
@@ -689,7 +713,7 @@ const AppInputBar = React.memo(
                 onRecordingChange={handleRecordingChange}
                 stopRecordingRef={stopRecordingRef}
                 currentMessage={message}
-                onRecordingStart={() => {}}
+                onRecordingStart={() => { }}
                 onAutoSend={(text) => {
                   submitMessage(text);
                 }}
@@ -726,7 +750,7 @@ const AppInputBar = React.memo(
               isClassifying
                 ? SvgSimpleLoader
                 : (chatState !== "input" || awaitingPreferredSelection) &&
-                    message.trim()
+                  message.trim()
                   ? SvgArrowUp
                   : chatState === "streaming" || isVoicePlaybackControllable
                     ? SvgStop
