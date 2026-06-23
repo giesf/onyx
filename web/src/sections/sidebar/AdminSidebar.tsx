@@ -80,18 +80,18 @@ function buildItems(
   if (!isCurator) {
     add(SECTIONS.UNLABELED, ADMIN_ROUTES.LLM_MODELS);
     add(SECTIONS.UNLABELED, ADMIN_ROUTES.WEB_SEARCH);
-    add(SECTIONS.UNLABELED, ADMIN_ROUTES.IMAGE_GENERATION);
-    add(SECTIONS.UNLABELED, ADMIN_ROUTES.VOICE);
+    // add(SECTIONS.UNLABELED, ADMIN_ROUTES.IMAGE_GENERATION);
+    // add(SECTIONS.UNLABELED, ADMIN_ROUTES.VOICE);
     add(SECTIONS.UNLABELED, ADMIN_ROUTES.CODE_INTERPRETER);
     add(SECTIONS.UNLABELED, ADMIN_ROUTES.CHAT_PREFERENCES);
 
-    if (!enableCloud && customAnalyticsEnabled) {
-      addGated(
-        SECTIONS.UNLABELED,
-        ADMIN_ROUTES.CUSTOM_ANALYTICS,
-        Tier.ENTERPRISE
-      );
-    }
+    // if (!enableCloud && customAnalyticsEnabled) {
+    //   addGated(
+    //     SECTIONS.UNLABELED,
+    //     ADMIN_ROUTES.CUSTOM_ANALYTICS,
+    //     Tier.ENTERPRISE
+    //   );
+    // }
   }
 
   // 2. Agents & Actions
@@ -99,68 +99,68 @@ function buildItems(
   add(SECTIONS.AGENTS_AND_ACTIONS, ADMIN_ROUTES.MCP_ACTIONS);
   add(SECTIONS.AGENTS_AND_ACTIONS, ADMIN_ROUTES.OPENAPI_ACTIONS);
 
-  // 3. Documents & Knowledge
-  // Shown even in Lite mode; the pages themselves render a no-indexing notice.
-  add(SECTIONS.DOCUMENTS_AND_KNOWLEDGE, ADMIN_ROUTES.INDEXING_STATUS);
-  add(SECTIONS.DOCUMENTS_AND_KNOWLEDGE, ADMIN_ROUTES.ADD_CONNECTOR);
-  add(SECTIONS.DOCUMENTS_AND_KNOWLEDGE, ADMIN_ROUTES.DOCUMENT_SETS);
-  if (!isCurator) {
-    items.push({
-      ...sidebarItem(ADMIN_ROUTES.INDEX_SETTINGS),
-      section: SECTIONS.DOCUMENTS_AND_KNOWLEDGE,
-      error: settings?.needs_reindexing,
-    });
-  }
+  // // 3. Documents & Knowledge
+  // // Shown even in Lite mode; the pages themselves render a no-indexing notice.
+  // add(SECTIONS.DOCUMENTS_AND_KNOWLEDGE, ADMIN_ROUTES.INDEXING_STATUS);
+  // add(SECTIONS.DOCUMENTS_AND_KNOWLEDGE, ADMIN_ROUTES.ADD_CONNECTOR);
+  // add(SECTIONS.DOCUMENTS_AND_KNOWLEDGE, ADMIN_ROUTES.DOCUMENT_SETS);
+  // if (!isCurator) {
+  //   items.push({
+  //     ...sidebarItem(ADMIN_ROUTES.INDEX_SETTINGS),
+  //     section: SECTIONS.DOCUMENTS_AND_KNOWLEDGE,
+  //     error: settings?.needs_reindexing,
+  //   });
+  // }
 
-  // 4. Integrations (admin only)
-  if (!isCurator) {
-    addGated(SECTIONS.INTEGRATIONS, ADMIN_ROUTES.API_KEYS, Tier.BUSINESS);
-    add(SECTIONS.INTEGRATIONS, ADMIN_ROUTES.SLACK_BOTS);
-    add(SECTIONS.INTEGRATIONS, ADMIN_ROUTES.DISCORD_BOTS);
-    if (hooksEnabled) {
-      addGated(SECTIONS.INTEGRATIONS, ADMIN_ROUTES.HOOKS, Tier.ENTERPRISE);
-    }
-  }
+  // // 4. Integrations (admin only)
+  // if (!isCurator) {
+  //   addGated(SECTIONS.INTEGRATIONS, ADMIN_ROUTES.API_KEYS, Tier.BUSINESS);
+  //   add(SECTIONS.INTEGRATIONS, ADMIN_ROUTES.SLACK_BOTS);
+  //   add(SECTIONS.INTEGRATIONS, ADMIN_ROUTES.DISCORD_BOTS);
+  //   if (hooksEnabled) {
+  //     addGated(SECTIONS.INTEGRATIONS, ADMIN_ROUTES.HOOKS, Tier.ENTERPRISE);
+  //   }
+  // }
 
-  // 5. Permissions
-  if (!isCurator) {
-    add(SECTIONS.PERMISSIONS, ADMIN_ROUTES.USERS);
-    addGated(SECTIONS.PERMISSIONS, ADMIN_ROUTES.GROUPS, Tier.BUSINESS);
-    addGated(SECTIONS.PERMISSIONS, ADMIN_ROUTES.SCIM, Tier.ENTERPRISE);
-  } else if (tierAtLeast(tier, Tier.BUSINESS)) {
-    add(SECTIONS.PERMISSIONS, ADMIN_ROUTES.GROUPS);
-  }
+  // // 5. Permissions
+  // if (!isCurator) {
+  //   add(SECTIONS.PERMISSIONS, ADMIN_ROUTES.USERS);
+  //   addGated(SECTIONS.PERMISSIONS, ADMIN_ROUTES.GROUPS, Tier.BUSINESS);
+  //   addGated(SECTIONS.PERMISSIONS, ADMIN_ROUTES.SCIM, Tier.ENTERPRISE);
+  // } else if (tierAtLeast(tier, Tier.BUSINESS)) {
+  //   add(SECTIONS.PERMISSIONS, ADMIN_ROUTES.GROUPS);
+  // }
 
-  // 6. Usage (admin only)
-  if (!isCurator) {
-    addGated(SECTIONS.USAGE, ADMIN_ROUTES.USAGE, Tier.BUSINESS);
-    addGated(SECTIONS.USAGE, ADMIN_ROUTES.TOKEN_RATE_LIMITS, Tier.ENTERPRISE);
-    if (
-      settings?.query_history_type !== "disabled" &&
-      !settings?.hide_query_history_from_admin_panel
-    ) {
-      addGated(SECTIONS.USAGE, ADMIN_ROUTES.QUERY_HISTORY, Tier.BUSINESS);
-    }
-  }
+  // // 6. Usage (admin only)
+  // if (!isCurator) {
+  //   addGated(SECTIONS.USAGE, ADMIN_ROUTES.USAGE, Tier.BUSINESS);
+  //   addGated(SECTIONS.USAGE, ADMIN_ROUTES.TOKEN_RATE_LIMITS, Tier.ENTERPRISE);
+  //   if (
+  //     settings?.query_history_type !== "disabled" &&
+  //     !settings?.hide_query_history_from_admin_panel
+  //   ) {
+  //     addGated(SECTIONS.USAGE, ADMIN_ROUTES.QUERY_HISTORY, Tier.BUSINESS);
+  //   }
+  // }
 
   // 7. Organization (admin only)
   if (!isCurator) {
     addGated(SECTIONS.ORGANIZATION, ADMIN_ROUTES.THEME, Tier.BUSINESS);
     add(SECTIONS.ORGANIZATION, ADMIN_ROUTES.SECURITY_HARDENING);
-    if (hasSubscription) {
-      add(SECTIONS.ORGANIZATION, ADMIN_ROUTES.BILLING);
-    }
+    // if (hasSubscription) {
+    //   add(SECTIONS.ORGANIZATION, ADMIN_ROUTES.BILLING);
+    // }
   }
 
-  // 8. Upgrade Plan (admin only, no subscription)
-  if (!isCurator && !hasSubscription) {
-    items.push({
-      section: SECTIONS.UNLABELED,
-      name: "Upgrade Plan",
-      icon: SvgArrowUpCircle,
-      link: ADMIN_ROUTES.BILLING.path,
-    });
-  }
+  // // 8. Upgrade Plan (admin only, no subscription)
+  // if (!isCurator && !hasSubscription) {
+  //   items.push({
+  //     section: SECTIONS.UNLABELED,
+  //     name: "Upgrade Plan",
+  //     icon: SvgArrowUpCircle,
+  //     link: ADMIN_ROUTES.BILLING.path,
+  //   });
+  // }
 
   return items;
 }
@@ -206,9 +206,9 @@ export default function AdminSidebar() {
     billingLoading || licenseLoading
       ? true
       : Boolean(
-          (billingData && hasActiveSubscription(billingData)) ||
-          licenseData?.has_license
-        );
+        (billingData && hasActiveSubscription(billingData)) ||
+        licenseData?.has_license
+      );
   // Hooks are ENTERPRISE-only and only available for self-hosted single-tenant.
   const hooksEnabled =
     tierAtLeast(tier, Tier.ENTERPRISE) && (settings?.hooks_enabled ?? false);
